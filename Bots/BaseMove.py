@@ -1,12 +1,11 @@
 def is_free(pos, board):
     return board[pos[0], pos[1]] == ''
 
-def color_at(pos, board):
-    return board[pos[0], pos[1]][1]
-
-def can_move_or_capture(pos, board, player_color):
-    return is_free(pos, board) or color_at(pos, board) != player_color
-
+def is_ennemy(pos, board, player_color):
+    target = board[pos[0], pos[1]]
+    if target == '':
+        return False
+    return target[1] != player_color
 
 def check_boundary(pos, board):
     #   Check boundary condition
@@ -16,13 +15,25 @@ def check_boundary(pos, board):
        return False
     return True
 
+def can_move_or_capture(pos, board, player_color):
+    if check_boundary(pos, board):
+        return is_free(pos, board) or is_ennemy(pos, board, player_color)
+    else:
+        return False
+
 def move_diagonal(pos, board, player_color):
     moves = []
     x = pos[0]+1
     y = pos[1]+1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         x += 1
@@ -30,8 +41,14 @@ def move_diagonal(pos, board, player_color):
     x = pos[0]-1
     y = pos[1]-1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         x -= 1
@@ -39,8 +56,14 @@ def move_diagonal(pos, board, player_color):
     x = pos[0]+1
     y = pos[1]-1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         x += 1
@@ -48,8 +71,14 @@ def move_diagonal(pos, board, player_color):
     x = pos[0]-1
     y = pos[1]+1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         x -= 1
@@ -61,30 +90,54 @@ def move_axis(pos, board, player_color):
     x = pos[0]+1
     y = pos[1]
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         x += 1
     x = pos[0]-1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         x -= 1
     x = pos[0]
     y = pos[1]+1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         y += 1
     y = pos[1]-1
     while True:
-        if can_move_or_capture((x,y), board, player_color):
-            moves.append((x,y))
+        if check_boundary((x,y), board):
+            if is_free((x,y), board):
+                moves.append((x,y))
+            elif is_ennemy((x,y), board, player_color):
+                moves.append((x,y))
+                break
+            else:
+                break
         else:
             break
         y -= 1
@@ -96,13 +149,16 @@ def give_moves(pos, board):
     
     match piece:
         case 'p': # Pawn
-            if is_free((pox[0]+1,pos[1]), board):
-                moves.append((pox[0]+1,pos[1]))
-            if color_at((pox[0]+1,pos[1]+1), board) != player_color:
-                moves.append((pox[0]+1,pos[1]+1))
-            if color_at((pox[0]+1,pos[1]-1), board) != player_color:
-                moves.append((pox[0]+1,pos[1]-1))
-            break
+            if is_free((pos[0]+1,pos[1]), board):
+                moves.append((pos[0]+1,pos[1]))
+            d = (pos[0]+1,pos[1]+1)
+            if check_boundary(d, board):
+                if is_ennemy(d, board, player_color):
+                    moves.append(d)
+            d = (pos[0]+1,pos[1]-1)
+            if check_boundary(d, board):
+                if is_ennemy(d, board, player_color):
+                    moves.append(d)
         case 'n':
             knight_moves = [
                 (pos[0]+2, pos[1]+1), (pos[0]+2, pos[1]-1),
@@ -113,17 +169,13 @@ def give_moves(pos, board):
             for m in knight_moves:
                 if can_move_or_capture(m, board, player_color):
                     moves.append(m)
-            break
         case 'b':
             moves = move_diagonal(pos, board, player_color)
-            break
         case 'r':
             moves = move_axis(pos, board, player_color)
-            break
         case 'q':
-            moves.append(move_diagonal(pos, board, player_color))
-            moves.append(move_axis(pos, board, player_color))
-            break
+            moves += move_diagonal(pos, board, player_color)
+            moves += move_axis(pos, board, player_color)
         case 'k':
             king_moves = [
                 (pos[0]+1, pos[1]), (pos[0]-1, pos[1]),
@@ -134,6 +186,5 @@ def give_moves(pos, board):
             for m in king_moves:
                 if can_move_or_capture(m, board, player_color):
                     moves.append(m)
-            break
     
     return moves
