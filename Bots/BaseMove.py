@@ -143,47 +143,65 @@ def move_axis(pos, board, player_color):
         y -= 1
     return moves
 
+def pawn_moves(pos, board, player_color):
+    moves = []
+    if is_free((pos[0]+1,pos[1]), board):
+        moves.append((pos[0]+1,pos[1]))
+    d = (pos[0]+1,pos[1]+1)
+    if check_boundary(d, board):
+        if is_ennemy(d, board, player_color):
+            moves.append(d)
+    d = (pos[0]+1,pos[1]-1)
+    if check_boundary(d, board):
+        if is_ennemy(d, board, player_color):
+            moves.append(d)
+    return moves
+
+def knight_moves(pos, board, player_color):
+    possible_moves = [
+        (pos[0]+2, pos[1]+1), (pos[0]+2, pos[1]-1),
+        (pos[0]-2, pos[1]+1), (pos[0]-2, pos[1]-1),
+        (pos[0]+1, pos[1]+2), (pos[0]+1, pos[1]-2),
+        (pos[0]-1, pos[1]+2), (pos[0]-1, pos[1]-2) 
+    ]
+    moves = []
+    for m in possible_moves:
+        if can_move_or_capture(m, board, player_color):
+            moves.append(m)
+    return moves
+
+def king_moves(pos, board, player_color):
+    possible_moves = [
+        (pos[0]+1, pos[1]), (pos[0]-1, pos[1]),
+        (pos[0], pos[1]+1), (pos[0], pos[1]-1),
+        (pos[0]+1, pos[1]+1), (pos[0]+1, pos[1]-1),
+        (pos[0]-1, pos[1]+1), (pos[0]-1, pos[1]-1)
+    ]
+    moves = []
+    for m in possible_moves:
+        if can_move_or_capture(m, board, player_color):
+            moves.append(m)
+    return moves
+
 def give_moves(pos, board):
     piece, player_color = board[pos[0], pos[1]]
     moves = []
-    if piece== 'p': # Pawn
-        if is_free((pos[0]+1,pos[1]), board):
-            moves.append((pos[0]+1,pos[1]))
-        d = (pos[0]+1,pos[1]+1)
-        if check_boundary(d, board):
-            if is_ennemy(d, board, player_color):
-                moves.append(d)
-        d = (pos[0]+1,pos[1]-1)
-        if check_boundary(d, board):
-            if is_ennemy(d, board, player_color):
-                moves.append(d)
-    elif piece== 'n':
-        knight_moves = [
-            (pos[0]+2, pos[1]+1), (pos[0]+2, pos[1]-1),
-            (pos[0]-2, pos[1]+1), (pos[0]-2, pos[1]-1),
-            (pos[0]+1, pos[1]+2), (pos[0]+1, pos[1]-2),
-            (pos[0]-1, pos[1]+2), (pos[0]-1, pos[1]-2) 
-        ]
-        for m in knight_moves:
-            if can_move_or_capture(m, board, player_color):
-                moves.append(m)
-    elif piece== 'b':
-        moves = move_diagonal(pos, board, player_color)
-    elif piece== 'r':
-        moves = move_axis(pos, board, player_color)
-    elif piece== 'q':
-        moves += move_diagonal(pos, board, player_color)
-        moves += move_axis(pos, board, player_color)
-    elif piece== 'k':
-        king_moves = [
-            (pos[0]+1, pos[1]), (pos[0]-1, pos[1]),
-            (pos[0], pos[1]+1), (pos[0], pos[1]-1),
-            (pos[0]+1, pos[1]+1), (pos[0]+1, pos[1]-1),
-            (pos[0]-1, pos[1]+1), (pos[0]-1, pos[1]-1)
-        ]
-        for m in king_moves:
-            if can_move_or_capture(m, board, player_color):
-                moves.append(m)
+    
+    match piece:
+        case 'p': # Pawn
+            moves = pawn_moves(pos, board, player_color)
+        case 'n':
+            moves = knight_moves(pos, board, player_color)
+        case 'b':
+            moves = move_diagonal(pos, board, player_color)
+        case 'r':
+            moves = move_axis(pos, board, player_color)
+        case 'q':
+            moves += move_diagonal(pos, board, player_color)
+            moves += move_axis(pos, board, player_color)
+        case 'k':
+            moves = king_moves(pos, board, player_color)
+    
     return moves
 
 def give_better_moves(pos, board):

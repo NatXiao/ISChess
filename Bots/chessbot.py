@@ -26,9 +26,6 @@ def chess_bot(player_sequence, board, time_budget, **kwargs):
     selected_move = piece_moves[np.random.randint(0, len(piece_moves))]
     
     # Return random move in possible_moves
-    print(board[selected_piece[0],selected_piece[1]] + " " + str(selected_piece) + " -> " +
-            board[selected_move[0],selected_move[1]] + " " + str(selected_move))
-    print(piece_moves)
     return selected_piece, selected_move
 
 def give_pieces(color, board):

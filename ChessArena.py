@@ -215,7 +215,7 @@ class ChessArena(QtWidgets.QWidget):
 
             for name in CHESS_BOT_LIST:
                 choice.addItem(name, CHESS_BOT_LIST[name])
-            choice.setCurrentIndex(0)
+            choice.setCurrentIndex(len(CHESS_BOT_LIST)-1)
 
             self.players_AI_choice[color] = choice
             self.playersList.addWidget(choice)
