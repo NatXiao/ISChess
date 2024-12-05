@@ -8,6 +8,14 @@ def chess_bot(player_sequence, board, time_budget, **kwargs):
     
     color = player_sequence[1]
     player_pieces = give_pieces(color, board)
+    value_pieces = {
+        "k": 2000,
+        "q": 700,
+        "n": 400,
+        "b": 300,
+        "r": 500,
+        "p": 100
+    }
     
     piece_moves = []
     while not piece_moves:

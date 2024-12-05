@@ -146,45 +146,45 @@ def move_axis(pos, board, player_color):
 def give_moves(pos, board):
     piece, player_color = board[pos[0], pos[1]]
     moves = []
-    
-    match piece:
-        case 'p': # Pawn
-            if is_free((pos[0]+1,pos[1]), board):
-                moves.append((pos[0]+1,pos[1]))
-            d = (pos[0]+1,pos[1]+1)
-            if check_boundary(d, board):
-                if is_ennemy(d, board, player_color):
-                    moves.append(d)
-            d = (pos[0]+1,pos[1]-1)
-            if check_boundary(d, board):
-                if is_ennemy(d, board, player_color):
-                    moves.append(d)
-        case 'n':
-            knight_moves = [
-                (pos[0]+2, pos[1]+1), (pos[0]+2, pos[1]-1),
-                (pos[0]-2, pos[1]+1), (pos[0]-2, pos[1]-1),
-                (pos[0]+1, pos[1]+2), (pos[0]+1, pos[1]-2),
-                (pos[0]-1, pos[1]+2), (pos[0]-1, pos[1]-2) 
-            ]
-            for m in knight_moves:
-                if can_move_or_capture(m, board, player_color):
-                    moves.append(m)
-        case 'b':
-            moves = move_diagonal(pos, board, player_color)
-        case 'r':
-            moves = move_axis(pos, board, player_color)
-        case 'q':
-            moves += move_diagonal(pos, board, player_color)
-            moves += move_axis(pos, board, player_color)
-        case 'k':
-            king_moves = [
-                (pos[0]+1, pos[1]), (pos[0]-1, pos[1]),
-                (pos[0], pos[1]+1), (pos[0], pos[1]-1),
-                (pos[0]+1, pos[1]+1), (pos[0]+1, pos[1]-1),
-                (pos[0]-1, pos[1]+1), (pos[0]-1, pos[1]-1)
-            ]
-            for m in king_moves:
-                if can_move_or_capture(m, board, player_color):
-                    moves.append(m)
-    
+    if piece== 'p': # Pawn
+        if is_free((pos[0]+1,pos[1]), board):
+            moves.append((pos[0]+1,pos[1]))
+        d = (pos[0]+1,pos[1]+1)
+        if check_boundary(d, board):
+            if is_ennemy(d, board, player_color):
+                moves.append(d)
+        d = (pos[0]+1,pos[1]-1)
+        if check_boundary(d, board):
+            if is_ennemy(d, board, player_color):
+                moves.append(d)
+    elif piece== 'n':
+        knight_moves = [
+            (pos[0]+2, pos[1]+1), (pos[0]+2, pos[1]-1),
+            (pos[0]-2, pos[1]+1), (pos[0]-2, pos[1]-1),
+            (pos[0]+1, pos[1]+2), (pos[0]+1, pos[1]-2),
+            (pos[0]-1, pos[1]+2), (pos[0]-1, pos[1]-2) 
+        ]
+        for m in knight_moves:
+            if can_move_or_capture(m, board, player_color):
+                moves.append(m)
+    elif piece== 'b':
+        moves = move_diagonal(pos, board, player_color)
+    elif piece== 'r':
+        moves = move_axis(pos, board, player_color)
+    elif piece== 'q':
+        moves += move_diagonal(pos, board, player_color)
+        moves += move_axis(pos, board, player_color)
+    elif piece== 'k':
+        king_moves = [
+            (pos[0]+1, pos[1]), (pos[0]-1, pos[1]),
+            (pos[0], pos[1]+1), (pos[0], pos[1]-1),
+            (pos[0]+1, pos[1]+1), (pos[0]+1, pos[1]-1),
+            (pos[0]-1, pos[1]+1), (pos[0]-1, pos[1]-1)
+        ]
+        for m in king_moves:
+            if can_move_or_capture(m, board, player_color):
+                moves.append(m)
     return moves
+
+def give_better_moves(pos, board):
+    piece, player_color = board[pos[0], pos[1]]
