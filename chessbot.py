@@ -3,12 +3,10 @@ import numpy
 def chess_bot(player_sequence, board, time_budget, **kwargs):
     
     color = player_sequence[1]
-    random_piece(color, board)
-    #find all possible moves for one piece
-   
+    piece = random_piece(color, board)
+    #find all possible moves for the random piece
     # return random in possible_mooves
-
-    return (0,0), (0,0)
+    return random_moove(piece, board)
 
 def random_piece(color, board):
     CHESS_PIECES = ["k",  "q", "n", "b", "r", "p"]
@@ -24,5 +22,5 @@ def random_piece(color, board):
     return selected_chess
 
 
-def possible_moove():
+def random_moove():
     return 0
