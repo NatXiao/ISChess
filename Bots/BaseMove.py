@@ -203,3 +203,31 @@ def give_moves(pos, board):
             moves = king_moves(pos, board, player_color)
     
     return moves
+    
+def give_eating_moves(pos, board):
+    piece, player_color = board[pos[0], pos[1]]
+    moves = []
+    
+    match piece:
+        case 'p': # Pawn
+            moves = pawn_moves(pos, board, player_color)
+        case 'n':
+            moves = knight_moves(pos, board, player_color)
+        case 'b':
+            moves = move_diagonal(pos, board, player_color)
+        case 'r':
+            moves = move_axis(pos, board, player_color)
+        case 'q':
+            moves += move_diagonal(pos, board, player_color)
+            moves += move_axis(pos, board, player_color)
+        case 'k':
+            moves = king_moves(pos, board, player_color)
+    
+    eating_moves = []
+    for move in moves:
+        if is_ennemy(move, board, player_color):
+            eating_moves.append(move)
+    
+    if not eating_moves:
+        return moves
+    return eating_moves
