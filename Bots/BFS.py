@@ -70,7 +70,7 @@ register_chess_bot("WrongBFSMove", chess_bot)
 
 
 
-def wrongbfsMove(player_sequence, board, our_color, step, score = 0):
+def bfsMove(player_sequence, board, our_color, step, score = 0):
     
     color = player_sequence[1]
     new_sequence = player_sequence[3:] + player_sequence[:3]
@@ -82,35 +82,10 @@ def wrongbfsMove(player_sequence, board, our_color, step, score = 0):
     best_score = score
     best_move = moves[0]
     
-    if color == our_color:
-        for m in moves:
-            s = 0
-            p = board[m[1]]
-            if p != '':
-                s += value_pieces[p[0]]
-            if step != 0:
-                new_board = board.copy()
-                new_board[m[1]] = new_board[m[0]]
-                new_board[m[0]] = ''
-                s, _, _ = bfsMove(new_sequence, new_board[::-1], our_color, step-1, score+s)
-            
-            if s > best_score:
-                best_score = s
-                best_move = m
-    else:
-        for m in moves:
-            s = 0
-            p = board[m[1]]
-            if p != '':
-                s -= value_pieces[p[0]]
-            if step != 0:
-                new_board = board.copy()
-                new_board[m[1]] = new_board[m[0]]
-                new_board[m[0]] = ''
-                s, _, _ = bfsMove(new_sequence, new_board, our_color, step-1, score-s)
-            
-            if s > best_score:
-                best_score = s
-                best_move = m
+    #Something like this
+    q = moves
+
+    while not q:
+        pass
                 
-    return (best_score, best_move[0], best_move[1])
+    return best_move[0], best_move[1]
