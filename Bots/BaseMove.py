@@ -143,15 +143,17 @@ def move_axis(pos, board, player_color):
         y -= 1
     return moves
 
-def pawn_moves(pos, board, player_color):
+def pawn_moves(pos, board, player_color, up_down = True):
     moves = []
-    if is_free((pos[0]+1,pos[1]), board):
-        moves.append((pos[0]+1,pos[1]))
-    d = (pos[0]+1,pos[1]+1)
+    advance = 1 if up_down else -1
+    d = (pos[0]+advance,pos[1])
+    if is_free(d, board):
+        moves.append(d)
+    d = (pos[0]+advance,pos[1]+1)
     if check_boundary(d, board):
         if is_ennemy(d, board, player_color):
             moves.append(d)
-    d = (pos[0]+1,pos[1]-1)
+    d = (pos[0]+advance,pos[1]-1)
     if check_boundary(d, board):
         if is_ennemy(d, board, player_color):
             moves.append(d)
@@ -183,13 +185,13 @@ def king_moves(pos, board, player_color):
             moves.append(m)
     return moves
 
-def give_moves(pos, board):
+def give_moves(pos, board, up_down = True):
     piece, player_color = board[pos[0], pos[1]]
     moves = []
     
     match piece:
         case 'p': # Pawn
-            moves = pawn_moves(pos, board, player_color)
+            moves = pawn_moves(pos, board, player_color, up_down)
         case 'n':
             moves = knight_moves(pos, board, player_color)
         case 'b':
