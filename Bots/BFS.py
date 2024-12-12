@@ -178,15 +178,24 @@ def visited_bfsMove(player_sequence, board, depth):
                 new_board[move[0][0]][move[0][1]] = ''
                 
                 score = current_score
-                if piece[0] == 'p' and move[1][0] == 7:
-                    print("transformation possible")
-                    score += value_pieces['q']
+                if piece[0] == 'p':
+                    score += value_pieces['p']
+                    if move[1][0] == 7:
+                        print("transformation possible")
+                        score += value_pieces['q']
+                        new_board[move[1][0]][move[1][1]] = 'q' + piece[1]
+                if piece[0] == 'k':
+                    score -= value_pieces['p']
                 if eated != '':
                     score += value_pieces[eated[0]]
                     if eated[0] == 'k':
                         depth = current_depth
                         if current_depth == 0:
                             return move
+                    elif value_pieces[eated[0]] - value_pieces[piece[0]] > 1000:
+                        print("")
+                        depth = current_depth
+
                 
                 new_sequence = current_sequence[1:] + current_sequence[0]
                 
@@ -216,8 +225,10 @@ def visited_bfsMove(player_sequence, board, depth):
                 if piece[0] == 'p' and move[1][0] == 7:
                     print("transformation possible")
                     score += value_pieces['q']
+                    new_board[move[1][0]][move[1][1]] = 'q' + piece[1]
                 if eated != '':
-                    score += value_pieces[eated[0]]
+                    if eated[0] != 'p':
+                        score += value_pieces[eated[0]]
                     if eated[0] == 'k':
                         current_depth = depth
                         break
