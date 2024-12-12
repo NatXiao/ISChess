@@ -68,77 +68,6 @@ def wrongbfsMove(player_sequence, board, our_color, step, score = 0):
                 
     return (best_score, best_move[0], best_move[1])
 
-register_chess_bot("WrongBFSMove", chess_bot)
-
-
-# def bfsMove(player_sequence, board, step):
-#     player_pieces = give_pieces(player_sequence[1], board)
-#     nemesis_pieces = give_pieces(player_sequence[4], board)
-#     dict_player_pieces = {}
-#     dict_nemesis_pieces = {}
-
-
-#     moves = []
-#     for p in player_pieces:
-#         dict_player_pieces[board[p[0]][p[1]]] = p
-#         moves += [[give_score(board, m), [(p, m)]] for m in give_moves(p, board)]
-#     for p in nemesis_pieces:
-#         dict_nemesis_pieces[board[p[0]][p[1]]] = (7-p[0], 7-p[1])
-    
-#     q = moves
-#     best_score = float('-inf')
-#     best_move = None
-
-#     while q:
-#         n = q.pop(0)
-#         score, mov = n
-#         if score < 0:
-#             continue
-#         if len(mov) > step:
-#             if score > best_score:
-#                 best_score = score
-#                 best_move = mov[0]
-#                 print("->", end='')
-#                 print(n)
-#             if score == best_score and np.random.rand() > 0.5:
-#                 best_score = score
-#                 best_move = mov[0]
-#                 print("r>", end='')
-#                 print(n)
-#             continue
-        
-#         new_board = board.copy()
-#         new_player_pieces = dict_player_pieces.copy()
-#         new_nemesis_pieces = dict_nemesis_pieces.copy()
-#         me = True
-#         for m in mov:
-#             if me:
-#                 new_player_pieces[board[m[0][0]][m[0][1]]] = m[1]
-#                 del new_player_pieces[board[m[0][0]][m[0][1]]]
-#                 if (7-m[1][0], 7-m[1][1])  in new_nemesis_pieces.values():
-#                     del new_nemesis_pieces[board[m[1][0]][m[1][1]]]
-#             else:
-#                 new_nemesis_pieces[board[m[0][0]][m[0][1]]] = m[1]
-#                 del new_nemesis_pieces[board[m[0][0]][m[0][1]]]
-#                 if m[1] in new_player_pieces.values():
-#                     del new_player_pieces[board[m[1][0]][m[1][1]]]
-#             p = new_board[m[0]]
-#             new_board[m[0]] = ''
-#             new_board[m[1]] = p
-#             me = not me
-        
-#         if me:
-#             pieces = new_player_pieces.values()
-#             for p in pieces:
-#                 q += [[score + give_score(new_board, m), mov + [(p, m)]] for m in give_moves(p, new_board)]
-#         else:
-#             new_board = np.array([list(b[::-1]) for b in new_board[::-1]])
-#             pieces = new_nemesis_pieces.values()
-#             for p in pieces:
-#                 q += [[score - 1.5 * give_score(new_board, m), mov + [((7 - p[0], 7 - p[1]), (7 - m[0], 7 - m[1]))]] for m in give_moves((7 - p[0], 7 - p[1]), new_board)]
-    
-#     return best_move[0], best_move[1]
-
 def bfsMove(player_sequence, board, depth):
     color = player_sequence[1]
     player_sequence = player_sequence[1] + player_sequence[4]
@@ -190,8 +119,6 @@ def bfsMove(player_sequence, board, depth):
                 best_score = score
                 best_move = base_move
         
-        if best_score >= 1000:
-            break
     
     if not best_move:
         best_move = start_move[np.random.randint(0,len(possible_moves))]
@@ -201,6 +128,87 @@ def chess_bot_bfs(player_sequence, board, time_budget, **kwargs):
     selected_piece, selected_move = bfsMove(player_sequence, board, 5)
     return selected_piece, selected_move
 
+
+def visited_bfsMove(player_sequence, board, depth):
+    visite = 0
+    color = player_sequence[1]
+    player_sequence = player_sequence[1] + player_sequence[4]
+    queue = [(board, player_sequence, 0, 0, None)]
+    # (current board, player sequence, current depth, score, move)
+    visited = {}
+    best_move = None
+    start_move = None
+    best_score = 0
+    
+    while queue:
+        current_board, current_sequence, current_depth, current_score, base_move = queue.pop(0)
+        
+        if current_depth == depth or current_score < -50 + current_depth*50:
+            continue
+
+        tupled_board = (tuple(map(tuple, current_board)),current_sequence)
+        if tupled_board in visited.keys():
+            if visited[tupled_board] >= current_score:
+                pass#continue
+            else:
+                visited[tupled_board] = current_score
+        else:
+            visited[tupled_board] = current_score
+
+        visite += 1
+
+        # Generate all possible moves for the current player
+        player_pieces = give_pieces(current_sequence[0], current_board)
+        possible_moves = []
+        
+        for p in player_pieces:
+            possible_moves += [(p, m) for m in give_moves(p, current_board, color == current_sequence[0])]
+        
+        for move in possible_moves:
+            new_board = current_board.copy()
+            eated = new_board[move[1][0]][move[1][1]]
+            new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
+            new_board[move[0][0]][move[0][1]] = ''
+            
+            score = current_score
+            if eated != '':
+                if color == current_sequence[0]:
+                    score += value_pieces[eated[0]]
+                    if eated[0] == 'k':
+                        score *= 10
+                        current_depth = depth
+                else:
+                    score -= value_pieces[eated[0]]
+                    if eated[0] == 'k':
+                        score = -value_pieces[eated[0]]
+                        current_depth = depth
+            
+            new_sequence = current_sequence[1:] + current_sequence[0]
+            
+            if base_move is None:
+                queue.append((new_board, new_sequence, current_depth + 1, score, move))
+                start_move = possible_moves
+            else:
+                queue.append((new_board, new_sequence, current_depth + 1, score, base_move))
+            
+            if score > best_score:
+                best_score = score
+                best_move = base_move
+            if score == best_score and np.random.rand() > 0.5:
+                best_score = score
+                best_move = base_move
+        
+    print(visite, len(visited))
+    if not best_move:
+        print("random selection")
+        best_move = start_move[np.random.randint(0,len(possible_moves))]
+    for k, v in visited:
+        print(k,v)
+    return best_move
+
+def chess_bot_visited(player_sequence, board, time_budget, **kwargs):
+    selected_piece, selected_move = visited_bfsMove(player_sequence, board, 5)
+    return selected_piece, selected_move
 
 def chess_bot_test(player_sequence, board, time_budget, **kwargs):
 
@@ -228,5 +236,7 @@ def chess_bot_test(player_sequence, board, time_budget, **kwargs):
     return (0,1), (0,1)
 
 
+register_chess_bot("WrongBFSMove", chess_bot)
 register_chess_bot("Test", chess_bot_test)
 register_chess_bot("BFSMove", chess_bot_bfs)
+register_chess_bot("visited BFSMove", chess_bot_visited)

@@ -147,8 +147,9 @@ def pawn_moves(pos, board, player_color, up_down = True):
     moves = []
     advance = 1 if up_down else -1
     d = (pos[0]+advance,pos[1])
-    if is_free(d, board):
-        moves.append(d)
+    if check_boundary(d, board):
+        if is_free(d, board):
+            moves.append(d)
     d = (pos[0]+advance,pos[1]+1)
     if check_boundary(d, board):
         if is_ennemy(d, board, player_color):
