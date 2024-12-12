@@ -141,21 +141,26 @@ def visited_bfsMove(player_sequence, board, depth):
     best_score = 0
     
     while queue:
+        visite += 1
         current_board, current_sequence, current_depth, current_score, base_move = queue.pop(0)
         
-        if current_depth == depth or current_score < -50 + current_depth*50:
+        if current_depth >= depth:
             continue
-
-        tupled_board = (tuple(map(tuple, current_board)),current_sequence)
+        
+        tupled_board = str(current_board) + str(current_sequence)
         if tupled_board in visited.keys():
-            if visited[tupled_board] >= current_score:
-                pass#continue
-            else:
-                visited[tupled_board] = current_score
-        else:
-            visited[tupled_board] = current_score
+            if visited[tupled_board][1] < current_depth or visited[tupled_board][0] > current_score:
+                continue
+            elif visited[tupled_board][1] > current_depth and visited[tupled_board][0] == current_score:
+                visited[tupled_board] = (current_score, current_depth)
+            elif visited[tupled_board][0] < current_score:
+                visited[tupled_board] = (current_score, current_depth)
+            elif visited[tupled_board][0] == current_score and np.random.rand() > 0.5:
+                visited[tupled_board] = (current_score, current_depth)
 
-        visite += 1
+        else:
+            visited[tupled_board] = (current_score, current_depth)
+
 
         # Generate all possible moves for the current player
         player_pieces = give_pieces(current_sequence[0], current_board)
@@ -164,46 +169,78 @@ def visited_bfsMove(player_sequence, board, depth):
         for p in player_pieces:
             possible_moves += [(p, m) for m in give_moves(p, current_board, color == current_sequence[0])]
         
-        for move in possible_moves:
-            new_board = current_board.copy()
-            eated = new_board[move[1][0]][move[1][1]]
-            new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-            new_board[move[0][0]][move[0][1]] = ''
-            
-            score = current_score
-            if eated != '':
-                if color == current_sequence[0]:
+        if color == current_sequence[0]:
+            for move in possible_moves:
+                new_board = current_board.copy()
+                piece = new_board[move[0][0]][move[0][1]]
+                eated = new_board[move[1][0]][move[1][1]]
+                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
+                new_board[move[0][0]][move[0][1]] = ''
+                
+                score = current_score
+                if piece[0] == 'p' and move[1][0] == 7:
+                    print("transformation possible")
+                    score += value_pieces['q']
+                if eated != '':
                     score += value_pieces[eated[0]]
                     if eated[0] == 'k':
-                        score *= 10
-                        current_depth = depth
+                        depth = current_depth
+                        if current_depth == 0:
+                            return move
+                
+                new_sequence = current_sequence[1:] + current_sequence[0]
+                
+                if base_move is None:
+                    start_move = possible_moves
+                    queue.append((new_board, new_sequence, current_depth + 1, score, move))
                 else:
-                    score -= value_pieces[eated[0]]
+                    queue.append((new_board, new_sequence, current_depth + 1, score, base_move))
+                
+                    if score > best_score:
+                        best_score = score
+                        best_move = base_move
+                    if score == best_score and np.random.rand() > 0.5:
+                        best_score = score
+                        best_move = base_move
+        else:
+            worst_score = 0
+            worst_board = None
+            for move in possible_moves:
+                new_board = current_board.copy()
+                piece = new_board[move[0][0]][move[0][1]]
+                eated = new_board[move[1][0]][move[1][1]]
+                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
+                new_board[move[0][0]][move[0][1]] = ''
+                
+                score = current_score
+                if piece[0] == 'p' and move[1][0] == 7:
+                    print("transformation possible")
+                    score += value_pieces['q']
+                if eated != '':
+                    score += value_pieces[eated[0]]
                     if eated[0] == 'k':
-                        score = -value_pieces[eated[0]]
                         current_depth = depth
-            
+                        break
+                
+                
+                if score > worst_score:
+                    worst_score = score
+                    worst_board = new_board
+                if score == worst_score and np.random.rand() > 0.5:
+                    worst_score = score
+                    worst_board = new_board
+
+            if worst_score == 0:
+                worst_board = new_board
             new_sequence = current_sequence[1:] + current_sequence[0]
+            queue.append((worst_board, new_sequence, current_depth + 1, current_score-worst_score, base_move))
             
-            if base_move is None:
-                queue.append((new_board, new_sequence, current_depth + 1, score, move))
-                start_move = possible_moves
-            else:
-                queue.append((new_board, new_sequence, current_depth + 1, score, base_move))
-            
-            if score > best_score:
-                best_score = score
-                best_move = base_move
-            if score == best_score and np.random.rand() > 0.5:
-                best_score = score
-                best_move = base_move
-        
-    print(visite, len(visited))
-    if not best_move:
+    
+
+    print(visite, len(visited), best_score, best_move)
+    if best_score == 0:
         print("random selection")
-        best_move = start_move[np.random.randint(0,len(possible_moves))]
-    for k, v in visited:
-        print(k,v)
+        best_move = start_move[np.random.randint(0,len(start_move))]
     return best_move
 
 def chess_bot_visited(player_sequence, board, time_budget, **kwargs):
