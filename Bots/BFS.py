@@ -136,7 +136,7 @@ def visited_bfsMove(player_sequence, board, depth):
     queue = [(board, player_sequence, 0, 0, None)]
     # (current board, player sequence, current depth, score, move)
     visited = {}
-    best_move = None
+    best_move = []
     start_move = None
     best_score = 0
     
@@ -179,23 +179,18 @@ def visited_bfsMove(player_sequence, board, depth):
                 
                 score = current_score
                 if piece[0] == 'p':
-                    score += value_pieces['p']
+                    score += value_pieces['n']
                     if move[1][0] == 7:
-                        print("transformation possible")
                         score += value_pieces['q']
                         new_board[move[1][0]][move[1][1]] = 'q' + piece[1]
-                if piece[0] == 'k':
-                    score -= value_pieces['p']
                 if eated != '':
                     score += value_pieces[eated[0]]
                     if eated[0] == 'k':
                         depth = current_depth
                         if current_depth == 0:
                             return move
-                    elif value_pieces[eated[0]] - value_pieces[piece[0]] > 1000:
-                        print("")
-                        depth = current_depth
-
+                elif piece[0] == 'k':
+                    score -= value_pieces['n']
                 
                 new_sequence = current_sequence[1:] + current_sequence[0]
                 
@@ -207,10 +202,9 @@ def visited_bfsMove(player_sequence, board, depth):
                 
                     if score > best_score:
                         best_score = score
-                        best_move = base_move
-                    if score == best_score and np.random.rand() > 0.5:
-                        best_score = score
-                        best_move = base_move
+                        best_move = [base_move]
+                    if score == best_score:
+                        best_move.append(base_move)
         else:
             worst_score = 0
             worst_board = None
@@ -222,16 +216,18 @@ def visited_bfsMove(player_sequence, board, depth):
                 new_board[move[0][0]][move[0][1]] = ''
                 
                 score = current_score
-                if piece[0] == 'p' and move[1][0] == 7:
-                    print("transformation possible")
-                    score += value_pieces['q']
-                    new_board[move[1][0]][move[1][1]] = 'q' + piece[1]
+                if piece[0] == 'p':
+                    score += value_pieces['n']
+                    if move[1][0] == 0:
+                        score += value_pieces['q']
+                        new_board[move[1][0]][move[1][1]] = 'q' + piece[1]
                 if eated != '':
-                    if eated[0] != 'p':
-                        score += value_pieces[eated[0]]
+                    score += value_pieces[eated[0]]
                     if eated[0] == 'k':
                         current_depth = depth
                         break
+                elif piece[0] == 'k':
+                    score -= value_pieces['n']
                 
                 
                 if score > worst_score:
@@ -250,9 +246,9 @@ def visited_bfsMove(player_sequence, board, depth):
 
     print(visite, len(visited), best_score, best_move)
     if best_score == 0:
-        print("random selection")
-        best_move = start_move[np.random.randint(0,len(start_move))]
-    return best_move
+        return start_move[np.random.randint(0,len(start_move))]
+    else:
+        return best_move[np.random.randint(0,len(best_move))]
 
 def chess_bot_visited(player_sequence, board, time_budget, **kwargs):
     selected_piece, selected_move = visited_bfsMove(player_sequence, board, 5)
