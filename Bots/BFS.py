@@ -88,8 +88,12 @@ def bfsMove(player_sequence, board, depth):
         player_pieces = give_pieces(current_sequence[0], current_board)
         possible_moves = []
         
+        if current_sequence[0] == color:
+            a = (1,0)
+        else:
+            a = (-1,0)
         for p in player_pieces:
-            possible_moves += [(p, m) for m in give_moves(p, current_board, color == current_sequence[0])]
+            possible_moves += [(p, m) for m in give_moves(p, current_board, advance=a)]
         
         for move in possible_moves:
             new_board = current_board.copy()
@@ -166,9 +170,14 @@ def visited_bfsMove(player_sequence, board, depth):
         player_pieces = give_pieces(current_sequence[0], current_board)
         possible_moves = []
         
+        if current_sequence[0] == color:
+            a = (1,0)
+        else:
+            a = (-1,0)
         for p in player_pieces:
-            possible_moves += [(p, m) for m in give_moves(p, current_board, color == current_sequence[0])]
-        
+            possible_moves += [(p, m) for m in give_moves(p, current_board, advance=a)]
+                
+
         if color == current_sequence[0]:
             for move in possible_moves:
                 new_board = current_board.copy()
