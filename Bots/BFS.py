@@ -114,6 +114,7 @@ def bfsMove(player_sequence, board, depth):
             possible_moves += [(p, m) for m in give_moves(p, current_board, advance=advance)]
         
         # Check all possible move
+        new_sequence = current_sequence[1:] + current_sequence[0]
         for move in possible_moves:
             # Creat new board
             new_board = current_board.copy()
@@ -129,7 +130,6 @@ def bfsMove(player_sequence, board, depth):
                         best_move.append(move)
             
             # Put in queue
-            new_sequence = current_sequence[1:] + current_sequence[0]
             if base_move is None:
                 queue.append((new_board, new_sequence, current_depth + 1, move))
                 start_move = possible_moves
@@ -201,6 +201,7 @@ def visited_bfsMove(player_sequence, board, depth):
         
         
         # Separate according to real player turn
+        new_sequence = current_sequence[1:] + current_sequence[0]
         if color == current_sequence[0]:
 
             #Check all possible move
@@ -228,10 +229,7 @@ def visited_bfsMove(player_sequence, board, depth):
                 elif piece[0] == 'k':
                     score -= value_pieces['n']
                 
-                new_sequence = current_sequence[1:] + current_sequence[0]
-                
                 # Put in queue
-                new_sequence = current_sequence[1:] + current_sequence[0]
                 if base_move is None:
                     queue.append((new_board, new_sequence, current_depth + 1, current_score+score, move))
                     start_move = possible_moves
@@ -279,8 +277,6 @@ def visited_bfsMove(player_sequence, board, depth):
                     worst_score = score
                     worst_move.append(move)
 
-
-
             # Creat best enemy board
             if worst_score == 0:
                 worst_move = possible_moves
@@ -294,7 +290,6 @@ def visited_bfsMove(player_sequence, board, depth):
             new_board[move[0][0]][move[0][1]] = ''
 
             # Put best enemy move in queue
-            new_sequence = current_sequence[1:] + current_sequence[0]
             queue.append((new_board, new_sequence, current_depth + 1, current_score-worst_score, base_move))
             
     
