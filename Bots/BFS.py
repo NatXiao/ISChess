@@ -98,7 +98,7 @@ def bfsMove(player_sequence, board, depth):
     while queue:
         current_board, current_sequence, current_depth, base_move = queue.pop(0)
         visited += 1
-        if current_depth == depth:
+        if current_depth >= depth:
             continue
         
         # Generate all possible moves for the current player
@@ -332,7 +332,7 @@ def chess_bot_bfs(player_sequence, board, time_budget, **kwargs):
     @return: move with selected piece position and piece new position
     """
     start = time.time()
-    selected_piece, selected_move = bfsMove(player_sequence, board, 3)
+    selected_piece, selected_move = bfsMove(player_sequence, board, 2)
     print("BFS Time   : ", time.time()-start)
     return selected_piece, selected_move
 
