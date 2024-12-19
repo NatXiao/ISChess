@@ -51,10 +51,10 @@ def recursive(player_sequence, board, our_color, depth, current_score = 0):
                 new_board = board.copy()
                 new_board[move[1]] = new_board[move[0]]
                 new_board[move[0]] = ''
-                score, _, _ = wrongbfsMove(new_sequence, new_board[::-1], depth-1, current_score+score)
+                score, _, _ = recursive(new_sequence, new_board[::-1], depth-1, current_score+score)
             
             if score > best_score:
-                best_score = s
+                best_score = score
                 best_move = move
     else:
         for move in moves:
@@ -66,7 +66,7 @@ def recursive(player_sequence, board, our_color, depth, current_score = 0):
                 new_board = board.copy()
                 new_board[move[1]] = new_board[move[0]]
                 new_board[move[0]] = ''
-                score, _, _ = wrongbfsMove(new_sequence, new_board, depth-1, current_score-score)
+                score, _, _ = recursive(new_sequence, new_board, depth-1, current_score-score)
             
             if score > best_score:
                 best_score = score
