@@ -1,6 +1,7 @@
 
 from Bots.ChessBotList import register_chess_bot
 from Bots.BaseMove import *
+from Bots.BaseStrategy import *
 from Bots.chessbot import *
 import time
 
@@ -76,14 +77,10 @@ def next_algo(player_sequence, board, depth):
             #Check all possible move
             for move in possible_moves:
                 # Create new board
-                new_board = current_board.copy()
-                piece = new_board[move[0][0]][move[0][1]]
-                eated = new_board[move[1][0]][move[1][1]]
-                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-                new_board[move[0][0]][move[0][1]] = ''
+                new_board, piece, eated = create_board(move, board)
                 
                 # Compute score
-                score = current_score
+                score = 0
                 if piece[0] == 'p':
                     if move[1][0] == 7:
                         score += value_pieces['q']
@@ -94,11 +91,14 @@ def next_algo(player_sequence, board, depth):
                         if current_depth <= 1:
                             return move
                         depth = current_depth + 2 if current_depth + 2 <= depth else depth
+                if check_check(move[1], new_board, advance):
+                    score += value_pieces['n']
                 score //= (current_depth + 1)
+                score += current_score
 
                 
                 # Put in queue
-                if base_move is None:
+                if base_move is None and current_depth == 0:
                     start_move = possible_moves
                     queue.append((new_board, new_sequence, current_depth + 1, score, move))
                 else:
@@ -116,14 +116,10 @@ def next_algo(player_sequence, board, depth):
             king_eat = False
             # Check all possible enemy move
             for move in possible_moves:
-                new_board = current_board.copy()
-                piece = new_board[move[0][0]][move[0][1]]
-                eated = new_board[move[1][0]][move[1][1]]
-                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-                new_board[move[0][0]][move[0][1]] = ''
+                new_board, piece, eated = create_board(move,board)
                 
                 # Compute ennemy score
-                score = current_score
+                score = 0
                 if piece[0] == 'p':
                     if move[1][0] == 0:
                         score += value_pieces['q']
@@ -133,7 +129,9 @@ def next_algo(player_sequence, board, depth):
                     if eated[0] == 'k':
                         king_eat = True
                         break
-                score //= (current_depth)
+                if check_check(move[1], new_board, advance):
+                    score += value_pieces['n']
+                score //= (current_depth + 1)
                 
                 # Keep best enemy move
                 if score > worst_score:
@@ -150,21 +148,21 @@ def next_algo(player_sequence, board, depth):
                 
                 move = worst_move[np.random.randint(0,len(worst_move))]
                 
-                new_board = current_board.copy()
-                piece = new_board[move[0][0]][move[0][1]]
-                eated = new_board[move[1][0]][move[1][1]]
-                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-                new_board[move[0][0]][move[0][1]] = ''
+                new_board, piece, eated = create_board(move, board)
 
                 # Put best enemy move in queue
                 queue.append((new_board, new_sequence, current_depth + 1, current_score-worst_score, base_move))
             
     # Select move to play
-    print("Algo visited: ", visite, " but truly visited: ", len(visited), best_score, best_move)
+    print("Algo visited: ", visite, " but truly visited: ", len(visited), best_score)
     if best_score == 0:
         return start_move[np.random.randint(0,len(start_move))]
     else:
-        return best_move[np.random.randint(0,len(best_move))]
+        selected = best_move[np.random.randint(0,len(best_move))]
+        if selected:
+            return selected
+        time.sleep(10)
+        return
 
 def chess_bot_scored(player_sequence, board, time_budget, **kwargs):
     """

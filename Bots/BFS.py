@@ -1,5 +1,6 @@
 from Bots.BaseMove import *
 from Bots.chessbot import *
+from Bots.BaseStrategy import *
 import time
 
 # Value given to the pieces
@@ -48,9 +49,7 @@ def recursive(player_sequence, board, our_color, depth, current_score = 0):
             if p != '':
                 score += value_pieces[p[0]]
             if depth != 0:
-                new_board = board.copy()
-                new_board[move[1]] = new_board[move[0]]
-                new_board[move[0]] = ''
+                new_board, _, _ = create_board(move, board)
                 score, _, _ = recursive(new_sequence, new_board[::-1], depth-1, current_score+score)
             
             if score > best_score:
@@ -63,9 +62,7 @@ def recursive(player_sequence, board, our_color, depth, current_score = 0):
             if p != '':
                 score -= value_pieces[p[0]]
             if depth != 0:
-                new_board = board.copy()
-                new_board[move[1]] = new_board[move[0]]
-                new_board[move[0]] = ''
+                new_board, _, _ = create_board(move, board)
                 score, _, _ = recursive(new_sequence, new_board, depth-1, current_score-score)
             
             if score > best_score:
@@ -117,10 +114,7 @@ def bfsMove(player_sequence, board, depth):
         new_sequence = current_sequence[1:] + current_sequence[0]
         for move in possible_moves:
             # Creat new board
-            new_board = current_board.copy()
-            eated = new_board[move[1]]
-            new_board[move[1]] = new_board[move[0]]
-            new_board[move[0]] = ''
+            new_board, _, eated = create_board(move, board)
             
             # Check if king is eated
             if eated != '':
@@ -207,11 +201,7 @@ def visited_bfsMove(player_sequence, board, depth):
             #Check all possible move
             for move in possible_moves:
                 # Create new board
-                new_board = current_board.copy()
-                piece = new_board[move[0][0]][move[0][1]]
-                eated = new_board[move[1][0]][move[1][1]]
-                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-                new_board[move[0][0]][move[0][1]] = ''
+                new_board, piece, eated = create_board(move, board)
                 
                 # Compute score
                 score = current_score
@@ -248,11 +238,7 @@ def visited_bfsMove(player_sequence, board, depth):
             # Check all possible enemy move
             for move in possible_moves:
                 # Creat new board
-                new_board = current_board.copy()
-                piece = new_board[move[0][0]][move[0][1]]
-                eated = new_board[move[1][0]][move[1][1]]
-                new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-                new_board[move[0][0]][move[0][1]] = ''
+                new_board, piece, eated = create_board(move, board)
                 
                 # Compute ennemy score
                 score = current_score
@@ -283,11 +269,7 @@ def visited_bfsMove(player_sequence, board, depth):
             
             move = worst_move[np.random.randint(0,len(worst_move))]
             
-            new_board = current_board.copy()
-            piece = new_board[move[0][0]][move[0][1]]
-            eated = new_board[move[1][0]][move[1][1]]
-            new_board[move[1][0]][move[1][1]] = new_board[move[0][0]][move[0][1]]
-            new_board[move[0][0]][move[0][1]] = ''
+            new_board, _, _ = create_board(move, board)
 
             # Put best enemy move in queue
             queue.append((new_board, new_sequence, current_depth + 1, current_score-worst_score, base_move))
@@ -295,7 +277,7 @@ def visited_bfsMove(player_sequence, board, depth):
     
 
     # Select move to play
-    print("BFS+ visited: ", visite, " but truly visited: ", len(visited), best_score, best_move)
+    print("BFS+ visited: ", visite, " but truly visited: ", len(visited), best_score)
     if best_score == 0:
         return start_move[np.random.randint(0,len(start_move))]
     else:
