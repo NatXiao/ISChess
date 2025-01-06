@@ -124,7 +124,7 @@ def bfsMove(player_sequence, board, depth):
                         best_move.append(move)
             
             # Put in queue
-            if base_move is None:
+            if current_depth == 0:
                 queue.append((new_board, new_sequence, current_depth + 1, move))
                 start_move = possible_moves
             else:
@@ -135,7 +135,11 @@ def bfsMove(player_sequence, board, depth):
     if not best_move:
         return start_move[np.random.randint(0,len(start_move))]
     else:
-        return best_move[np.random.randint(0,len(best_move))]
+        selected = best_move[np.random.randint(0,len(best_move))]
+        if selected:
+            return selected
+        time.sleep(10)
+        return
 
 def visited_bfsMove(player_sequence, board, depth):
     """
@@ -220,7 +224,7 @@ def visited_bfsMove(player_sequence, board, depth):
                     score -= value_pieces['n']
                 
                 # Put in queue
-                if base_move is None:
+                if current_depth == 0:
                     queue.append((new_board, new_sequence, current_depth + 1, current_score+score, move))
                     start_move = possible_moves
                 else:
@@ -281,7 +285,11 @@ def visited_bfsMove(player_sequence, board, depth):
     if best_score == 0:
         return start_move[np.random.randint(0,len(start_move))]
     else:
-        return best_move[np.random.randint(0,len(best_move))]
+        selected = best_move[np.random.randint(0,len(best_move))]
+        if selected:
+            return selected
+        time.sleep(10)
+        return
 
 
 def chess_bot_wrong(player_sequence, board, time_budget, **kwargs):
